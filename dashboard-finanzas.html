@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Familia Mac-Lean del Sante</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:#f5f2ed; --surf:#fff; --s2:#eeeae3; --s3:#e4dfd6;
+  --navy:#0c1e3c; --navy2:#162e54; --slate:#3d5475; --muted:#7a8fa8; --rule:#e0dbd2; --text:#0c1e3c;
+  --accent:#1a4fdb; --green:#0d7a56; --red:#b83b2a; --amber:#a05c10;
+  --sh:0 1px 4px rgba(12,30,60,.06),0 2px 8px rgba(12,30,60,.04);
+  --sh2:0 4px 20px rgba(12,30,60,.1);
+}
+[data-theme="dark"] {
+  --bg:#0e1420; --surf:#161e2e; --s2:#1c2638; --s3:#232f44;
+  --navy:#e8f0fe; --navy2:#c8d9fc; --slate:#8fb0e0; --muted:#5a7499; --rule:#232f44; --text:#e8f0fe;
+  --accent:#4d7cff; --green:#34c98a; --red:#e05a45; --amber:#e0953a;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+#app{width:100vw;height:100vh;position:relative;overflow:hidden}
+
+/* SCREENS */
+.screen{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;transform:translateY(10px);overflow-y:auto}
+.screen.active{opacity:1;pointer-events:all;transform:translateY(0)}
+
+/* COVER */
+#s-cover{background:#0c1e3c;display:flex;flex-direction:column;overflow:hidden}
+.cvr-bg{position:absolute;inset:0;background:repeating-linear-gradient(-55deg,rgba(255,255,255,.013) 0,rgba(255,255,255,.013) 1px,transparent 1px,transparent 28px)}
+.cvr-g1{position:absolute;top:-180px;right:-180px;width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(26,79,219,.34) 0%,transparent 65%)}
+.cvr-g2{position:absolute;bottom:-100px;left:-80px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(13,122,86,.14) 0%,transparent 65%)}
+.cvr-inner{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;padding:20px 28px 16px;height:100%}
+
+.cvr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cvr-logo{display:flex;align-items:center;gap:10px}
+.cvr-mark{width:32px;height:32px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.cvr-mark span{font-family:'Cormorant Garamond',serif;font-size:1rem;font-style:italic;color:#fff}
+.cvr-logo-name strong{display:block;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff}
+.cvr-logo-name small{font-size:.58rem;color:rgba(255,255,255,.3)}
+.cvr-top-right{display:flex;align-items:center;gap:6px}
+.cvr-chip{font-family:'DM Mono',monospace;font-size:.6rem;color:rgba(255,255,255,.28);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);padding:4px 10px;border-radius:100px}
+.cvr-cfg-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);color:rgba(255,255,255,.4);padding:4px 10px;border-radius:7px;font-size:.62rem;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* TICKER */
+.ticker{display:flex;align-items:center;gap:14px;padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:100px;margin-bottom:12px;flex-wrap:wrap}
+.tk-item{display:flex;align-items:center;gap:5px}
+.tk-lbl{font-size:.56rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.tk-val{font-family:'DM Mono',monospace;font-size:.68rem;color:#fff}
+.tk-chg{font-size:.6rem;font-weight:600}
+.tk-chg.up{color:#4ade80}.tk-chg.down{color:#f87171}.tk-chg.neu{color:rgba(255,255,255,.3)}
+.tk-div{width:1px;height:12px;background:rgba(255,255,255,.1)}
+
+/* HEADLINE */
+.cvr-hl{flex:1;display:flex;flex-direction:column;justify-content:flex-start}
+.cvr-eyebrow{font-size:.58rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.cvr-eyebrow::before{content:'';display:inline-block;width:18px;height:1px;background:rgba(255,255,255,.2)}
+.cvr-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.6rem,6vw,2.8rem);font-weight:700;color:#fff;line-height:1.05;letter-spacing:-.02em}
+.cvr-title em{font-style:italic;color:#93c5fd}
+
+/* CURRENCY TOGGLE */
+.curr-tog{display:flex;align-items:center;gap:5px;margin:8px 0}
+.ct-btn{font-size:.62rem;font-weight:700;padding:4px 12px;border-radius:100px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.4);cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.ct-btn.active{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.28)}
+
+.cvr-total{font-family:'Cormorant Garamond',serif;font-size:clamp(1.5rem,6vw,2.4rem);font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1;margin-bottom:6px;transition:all .3s}
+.cvr-badge{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:600;color:#4ade80;background:rgba(74,222,128,.11);border:1px solid rgba(74,222,128,.2);padding:4px 10px;border-radius:100px;margin-bottom:10px}
+
+/* META BAR */
+.meta-wrap{margin-bottom:14px}
+.meta-top{display:flex;justify-content:space-between;margin-bottom:5px}
+.meta-top span{font-size:.6rem;color:rgba(255,255,255,.38)}
+.meta-track{height:5px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.meta-fill{height:100%;background:linear-gradient(90deg,#4ade80,#22d3ee);border-radius:3px;transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+.meta-sub{font-size:.58rem;color:#4ade80;margin-top:4px}
+
+/* NAV GRID */
+.cvr-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.nav-card{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:12px;cursor:pointer;transition:all .22s;position:relative;overflow:hidden}
+.nav-card::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--nc,#1a4fdb);transform:scaleX(0);transform-origin:left;transition:transform .28s ease}
+.nav-card:hover,.nav-card:active{background:rgba(255,255,255,.09);transform:translateY(-2px)}
+.nav-card:hover::before,.nav-card:active::before{transform:scaleX(1)}
+.nc-icon{font-size:1rem;margin-bottom:6px;display:block}
+.nc-title{font-size:.72rem;font-weight:700;color:#fff;margin-bottom:2px}
+.nc-sub{font-size:.56rem;color:rgba(255,255,255,.3)}
+.nc-arr{position:absolute;top:10px;right:10px;font-size:.68rem;color:rgba(255,255,255,.18);transition:all .22s}
+.nav-card:hover .nc-arr{color:rgba(255,255,255,.5);transform:translateX(2px)}
+
+/* INNER SHELL */
+.inner{display:flex;flex-direction:column;height:100vh;background:var(--bg)}
+.itb{background:var(--surf);border-bottom:1px solid var(--rule);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:var(--sh)}
+.itb-l{display:flex;align-items:center;gap:10px}
+.back-btn{display:flex;align-items:center;gap:4px;font-size:.68rem;font-weight:600;color:var(--muted);cursor:pointer;padding:5px 9px;border-radius:7px;border:1px solid var(--rule);background:transparent;font-family:'DM Sans',sans-serif;transition:all .2s}
+.back-btn:hover{background:var(--s2);color:var(--text)}
+.itb-div{width:1px;height:16px;background:var(--rule)}
+.itb-title{font-size:.76rem;font-weight:700;color:var(--text)}
+.itb-r{display:flex;align-items:center;gap:7px}
+
+.curr-sw{display:flex;align-items:center;gap:2px;background:var(--s2);border:1px solid var(--rule);border-radius:7px;padding:3px}
+.cs-btn{font-size:.62rem;font-weight:700;padding:3px 9px;border-radius:5px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif}
+.cs-btn.active{background:var(--surf);color:var(--text);box-shadow:var(--sh)}
+
+.dark-btn{width:32px;height:32px;border-radius:7px;border:1px solid var(--rule);background:var(--s2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.8rem;transition:all .2s}
+.dark-btn:hover{background:var(--s3)}
+
+.sync-btn{display:flex;align-items:center;gap:5px;background:var(--navy2);color:#fff;border:none;padding:6px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.68rem;font-weight:600;cursor:pointer;transition:all .2s}
+.sync-btn:hover{opacity:.88}
+.sync-btn.loading{opacity:.5;pointer-events:none}
+.spin{display:inline-block;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.icontent{flex:1;overflow-y:auto;padding:20px 20px 48px}
+
+/* CARDS */
+.card{background:var(--surf);border:1px solid var(--rule);border-radius:10px;box-shadow:var(--sh);overflow:hidden;margin-bottom:12px;transition:box-shadow .2s}
+.card:hover{box-shadow:var(--sh2)}
+.card-h{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--rule)}
+.card-t{display:flex;align-items:center;gap:7px;font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+.card-icon{width:24px;height:24px;background:var(--s2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.7rem}
+.card-meta{font-size:.6rem;color:var(--muted);background:var(--s2);padding:2px 8px;border-radius:100px}
+.card-b{padding:16px}
+
+/* KPI */
+.kpi-strip{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}
+.kpi{background:var(--surf);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden;box-shadow:var(--sh)}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kc,var(--text));border-radius:3px 3px 0 0}
+.kpi-lbl{font-size:.56rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.kpi-val{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;line-height:1;color:var(--text);transition:all .3s}
+.kpi-sub{font-size:.62rem;color:var(--muted);margin-top:3px}
+.badge{display:inline-flex;align-items:center;gap:2px;font-size:.58rem;font-weight:600;padding:2px 7px;border-radius:100px;margin-top:6px}
+.badge.up{color:var(--green);background:rgba(13,122,86,.1)}
+.badge.down{color:var(--red);background:rgba(184,59,42,.1)}
+.badge.warn{color:var(--amber);background:rgba(160,92,16,.1)}
+.badge.neu{color:var(--muted);background:var(--s2)}
+
+/* META INNER */
+.mi-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.mi-lbl{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.mi-pct{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:500;color:var(--green)}
+.mi-track{height:7px;background:var(--s2);border-radius:4px;overflow:hidden;margin-bottom:7px}
+.mi-fill{height:100%;background:linear-gradient(90deg,var(--green),#22d3ee);border-radius:4px;transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+.mi-labels{display:flex;justify-content:space-between;font-size:.6rem;color:var(--muted)}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl thead th{font-size:.56rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 10px 8px;text-align:left;border-bottom:2px solid var(--rule)}
+.tbl thead th:not(:first-child){text-align:right}
+.tbl tbody tr{border-bottom:1px solid var(--rule);transition:background .15s}
+.tbl tbody tr:last-child{border-bottom:none}
+.tbl tbody tr:hover{background:var(--s2)}
+.tbl tbody td{padding:9px 10px;font-size:.73rem;vertical-align:middle}
+.tbl tbody td:not(:first-child){text-align:right}
+.tbl tfoot td{padding:9px 10px;border-top:2px solid var(--rule);font-weight:700;font-size:.73rem}
+.tbl tfoot td:not(:first-child){text-align:right}
+.td-plat{display:flex;align-items:center;gap:8px}
+.td-av{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:800;color:#fff;flex-shrink:0}
+.td-name{font-weight:600;font-size:.75rem;color:var(--text)}
+.td-sub{font-size:.56rem;color:var(--muted)}
+.td-num{font-family:'DM Mono',monospace;font-size:.7rem;font-weight:500;color:var(--text)}
+.td-mut{font-size:.65rem;color:var(--muted)}
+.td-chg{font-size:.68rem;font-weight:700}
+.td-chg.up{color:var(--green)}.td-chg.down{color:var(--red)}
+.td-tag{font-size:.52rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:5px}
+
+/* DONUT */
+.donut-wrap{position:relative;height:180px;margin-bottom:14px}
+.donut-ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.dc-val{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--text);line-height:1}
+.dc-sub{font-size:.52rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.leg{display:flex;flex-direction:column;gap:6px}
+.leg-item{display:flex;align-items:center;justify-content:space-between}
+.leg-l{display:flex;align-items:center;gap:6px;font-size:.68rem;color:var(--text)}
+.leg-dot{width:7px;height:7px;border-radius:50%}
+.leg-pct{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--text)}
+
+/* CHART */
+.ch-wrap{position:relative;height:200px}
+.ch-wrap-lg{position:relative;height:260px}
+
+/* PLATFORM CARDS */
+.plat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pc{background:var(--surf);border:1px solid var(--rule);border-radius:10px;padding:16px;position:relative;overflow:hidden;transition:all .2s;box-shadow:var(--sh)}
+.pc::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--pc)}
+.pc:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.pc-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.pc-av{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:800;color:#fff;background:var(--pc)}
+.pc-ok{display:flex;align-items:center;gap:3px;font-size:.56rem;font-weight:700;padding:2px 7px;border-radius:100px}
+.pc-ok.ok{color:var(--green);background:rgba(13,122,86,.1)}
+.pc-ok.nd{color:var(--amber);background:rgba(160,92,16,.1)}
+.pc-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.pc-name{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.pc-type{font-size:.58rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.pc-amt{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--text);line-height:1;margin-bottom:2px;transition:all .3s}
+.pc-uf{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);margin-bottom:10px}
+.pc-track{height:4px;background:var(--s2);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.pc-fill{height:100%;background:var(--pc);border-radius:2px;transition:width 1s ease}
+.pc-foot{display:flex;align-items:center;justify-content:space-between}
+.pc-pct{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted)}
+.pc-chg{font-size:.68rem;font-weight:700}
+.pc-chg.up{color:var(--green)}.pc-chg.down{color:var(--red)}
+.pc-note{margin-top:10px;padding-top:10px;border-top:1px solid var(--rule)}
+.pc-note textarea{width:100%;border:1px solid var(--rule);background:var(--s2);border-radius:6px;padding:7px 9px;font-family:'DM Sans',sans-serif;font-size:.68rem;color:var(--text);resize:none;outline:none;height:50px;transition:all .2s}
+.pc-note textarea:focus{border-color:var(--accent);background:var(--surf)}
+.pc-note textarea::placeholder{color:var(--muted)}
+.pc-note-btn{font-size:.58rem;font-weight:600;color:var(--accent);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;margin-top:4px;padding:0}
+.pc-note-ok{font-size:.58rem;color:var(--green);margin-left:8px;display:none}
+
+/* ASSET */
+.ar{padding:10px 0;border-bottom:1px solid var(--rule)}
+.ar:last-child{border-bottom:none}
+.ar-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.ar-l{display:flex;align-items:center;gap:8px}
+.ar-ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.72rem}
+.ar-name{font-size:.75rem;font-weight:600;color:var(--text)}
+.ar-desc{font-size:.58rem;color:var(--muted)}
+.ar-pct{font-family:'DM Mono',monospace;font-size:.88rem;font-weight:700}
+.ar-clp{font-size:.6rem;color:var(--muted)}
+.ar-track{height:4px;background:var(--s2);border-radius:2px;overflow:hidden}
+.ar-fill{height:100%;border-radius:2px;transition:width 1.2s ease}
+
+/* MOVEMENTS */
+.mv{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--rule)}
+.mv:last-child{border-bottom:none}
+.mv-l{display:flex;align-items:center;gap:8px}
+.mv-ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.72rem;flex-shrink:0}
+.mv-title{font-size:.72rem;font-weight:600;color:var(--text)}
+.mv-date{font-size:.58rem;color:var(--muted)}
+.mv-amt{font-family:'DM Mono',monospace;font-size:.74rem;font-weight:600;text-align:right}
+.mv-amt.pos{color:var(--green)}.mv-amt.neg{color:var(--red)}
+.mv-plat{font-size:.58rem;color:var(--muted);text-align:right}
+
+/* STATUS */
+.si-list{display:flex;flex-direction:column}
+.si{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--rule)}
+.si:last-child{border-bottom:none}
+.si-l{display:flex;align-items:center;gap:7px}
+.si-dot{width:7px;height:7px;border-radius:50%}
+.si-dot.ok{background:var(--green);box-shadow:0 0 0 3px rgba(13,122,86,.15)}
+.si-dot.nd{background:#d97706;box-shadow:0 0 0 3px rgba(217,119,6,.15)}
+.si-name{font-size:.72rem;font-weight:600;color:var(--text)}
+.si-badge{font-size:.58rem;font-weight:600;padding:2px 7px;border-radius:100px}
+.si-badge.ok{color:var(--green);background:rgba(13,122,86,.1)}
+.si-badge.nd{color:var(--amber);background:rgba(160,92,16,.1)}
+
+.log-box{margin-top:10px;background:var(--s2);border:1px solid var(--rule);border-radius:7px;padding:10px 12px;font-family:'DM Mono',monospace;font-size:.6rem;line-height:1.9;color:var(--muted);max-height:110px;overflow-y:auto;white-space:pre-wrap}
+.ll-ok{color:var(--green)}.ll-warn{color:var(--amber)}.ll-err{color:var(--red)}.ll-info{color:var(--accent)}
+
+/* RENT */
+.rent-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.rc{background:var(--surf);border:1px solid var(--rule);border-radius:10px;padding:16px;box-shadow:var(--sh)}
+.rc-name{font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.rc-type{font-size:.58rem;color:var(--muted);margin-bottom:10px}
+.rc-pct{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;line-height:1}
+.rc-pct.pos{color:var(--green)}.rc-pct.neg{color:var(--red)}
+.rc-sub{font-size:.62rem;color:var(--muted);margin-top:3px}
+.rc-bar-track{height:3px;background:var(--s2);border-radius:2px;overflow:hidden;margin-top:10px}
+.rc-bar-fill{height:100%;border-radius:2px}
+
+/* SETTINGS */
+.sg{margin-bottom:14px}
+.sg-lbl{font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.sg-input{width:100%;padding:9px 12px;border:1px solid var(--rule);border-radius:7px;background:var(--s2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.78rem;outline:none;transition:all .2s}
+.sg-input:focus{border-color:var(--accent);background:var(--surf)}
+.sg-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:7px;border:none;font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s}
+.sg-btn.primary{background:var(--accent);color:#fff}
+.sg-btn.primary:hover{opacity:.88}
+.sg-ok{font-size:.62rem;color:var(--green);margin-left:8px;display:none}
+
+/* PDF */
+.pdf-preview{border:1px solid var(--rule);border-radius:8px;padding:16px;background:var(--s2);max-height:380px;overflow-y:auto}
+
+/* SEMANAL */
+.semanal-notice{background:rgba(26,79,219,.08);border:1px solid rgba(26,79,219,.2);border-radius:9px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--rule);border-radius:2px}
+
+/* ANIM */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- COVER -->
+<div id="jstest" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#ff4444;color:white;text-align:center;padding:8px;font-size:14px;font-weight:bold;cursor:pointer;">
+  ⚠️ Toca aquí para probar JS
+</div>
+<div class="screen active" id="s-cover">
+  <div class="cvr-bg"></div><div class="cvr-g1"></div><div class="cvr-g2"></div>
+  <div class="cvr-inner">
+    <div class="cvr-top">
+      <div class="cvr-logo">
+        <div class="cvr-mark"><span>M</span></div>
+        <div class="cvr-logo-name">
+          <strong>Mac-Lean del Sante</strong>
+          <small>Portfolio familiar</small>
+        </div>
+      </div>
+      <div class="cvr-top-right">
+        <span class="cvr-chip" id="coverDate">28 mar 2026</span>
+        <button class="cvr-cfg-btn" data-goto="s-config">⚙ Config</button>
+      </div>
+    </div>
+
+    <div class="ticker">
+      <div class="tk-item"><span class="tk-lbl">UF</span><span class="tk-val" id="mkt-uf">$ 40.000</span><span class="tk-chg up">+0,03%</span></div>
+      <div class="tk-div"></div>
+      <div class="tk-item"><span class="tk-lbl">USD/CLP</span><span class="tk-val" id="mkt-usd">$ 942</span><span class="tk-chg down">−0,4%</span></div>
+      <div class="tk-div"></div>
+      <div class="tk-item"><span class="tk-lbl">TPM</span><span class="tk-val" id="mkt-tpm">5,00%</span><span class="tk-chg neu">Sin cambio</span></div>
+      <div class="tk-div"></div>
+      <div class="tk-item"><span class="tk-lbl">IPSA</span><span class="tk-val" id="mkt-ipsa">7.248</span><span class="tk-chg up">+0,8%</span></div>
+    </div>
+
+    <div class="cvr-hl">
+      <div class="cvr-eyebrow">Inversiones consolidadas</div>
+      <div class="cvr-title">Familia<br><em>Mac-Lean del Sante</em></div>
+      <div class="curr-tog">
+        <button class="ct-btn active" data-currency="CLP">CLP</button>
+        <button class="ct-btn" data-currency="UF">UF</button>
+        <button class="ct-btn" data-currency="USD">USD</button>
+      </div>
+      <div class="cvr-total" id="coverTotal">$ 312.480.000</div>
+      <div class="cvr-badge">▲ +4,2% este mes &nbsp;·&nbsp; +11,4% YTD</div>
+      <div class="meta-wrap">
+        <div class="meta-top">
+          <span>Meta: <span id="metaGoalLbl">$ 400.000.000</span></span>
+          <span id="metaPctLbl">78% completado</span>
+        </div>
+        <div class="meta-track"><div class="meta-fill" id="metaFill" style="width:78%"></div></div>
+        <div class="meta-sub">Faltan <span id="metaRemain">$ 87.520.000</span> para la meta</div>
+      </div>
+    </div>
+
+    <div class="cvr-nav">
+      <div class="nav-card" style="--nc:#1a4fdb" data-goto="s-resumen"><span class="nc-icon">📊</span><div class="nc-title">Resumen</div><div class="nc-sub">Vista consolidada</div><span class="nc-arr">→</span></div>
+      <div class="nav-card" style="--nc:#0d7a56" data-goto="s-plataformas"><span class="nc-icon">🏦</span><div class="nc-title">Plataformas</div><div class="nc-sub">Por institución</div><span class="nc-arr">→</span></div>
+      <div class="nav-card" style="--nc:#a05c10" data-goto="s-activos"><span class="nc-icon">⚖️</span><div class="nc-title">Activos</div><div class="nc-sub">Distribución</div><span class="nc-arr">→</span></div>
+      <div class="nav-card" style="--nc:#5b21b6" data-goto="s-evolucion"><span class="nc-icon">📈</span><div class="nc-title">Evolución</div><div class="nc-sub">Histórico</div><span class="nc-arr">→</span></div>
+      <div class="nav-card" style="--nc:#b83b2a" data-goto="s-rentabilidad"><span class="nc-icon">🏆</span><div class="nc-title">Rentabilidad</div><div class="nc-sub">Por plataforma</div><span class="nc-arr">→</span></div>
+      <div class="nav-card" style="--nc:#0369a1" data-goto="s-informe"><span class="nc-icon">📄</span><div class="nc-title">Informe PDF</div><div class="nc-sub">Reporte ejecutivo</div><span class="nc-arr">→</span></div>
+      <div class="nav-card" style="--nc:#0d7a56" data-goto="s-semanal"><span class="nc-icon">📬</span><div class="nc-title">Resumen IA</div><div class="nc-sub">Análisis semanal</div><span class="nc-arr">→</span></div>
+      <div class="nav-card" style="--nc:#7a8fa8" data-action="sync"><span class="nc-icon" id="syncNavIcon">↻</span><div class="nc-title">Sincronizar</div><div class="nc-sub">Gmail + mercado</div><span class="nc-arr">→</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESUMEN -->
+<div class="screen" id="s-resumen">
+  <div class="inner">
+    <div class="itb">
+      <div class="itb-l">
+        <button class="back-btn" data-goto="s-cover">← Inicio</button>
+        <div class="itb-div"></div>
+        <div class="itb-title">📊 Resumen</div>
+      </div>
+      <div class="itb-r">
+        <div class="curr-sw">
+          <button class="cs-btn active" data-currency-inner="CLP">CLP</button>
+          <button class="cs-btn" data-currency-inner="UF">UF</button>
+          <button class="cs-btn" data-currency-inner="USD">USD</button>
+        </div>
+        <button class="dark-btn" data-action="dark">🌙</button>
+      </div>
+    </div>
+    <div class="icontent">
+      <div class="kpi-strip">
+        <div class="kpi" style="--kc:#0c1e3c"><div class="kpi-lbl">Total portfolio</div><div class="kpi-val" id="kpi-total">$ 312,5M</div><div class="kpi-sub" id="kpi-total-sub">UF 7.812,0</div><div class="badge up">▲ +4,2% mes</div></div>
+        <div class="kpi" style="--kc:#0d7a56"><div class="kpi-lbl">Rentabilidad YTD</div><div class="kpi-val" style="color:var(--green)">+11,4%</div><div class="kpi-sub">+$ 32,2M en 2026</div><div class="badge up">▲ +3,3pp vs IPSA</div></div>
+        <div class="kpi" style="--kc:#1a4fdb"><div class="kpi-lbl">Mayor posición</div><div class="kpi-val" style="color:var(--accent);font-size:1rem">LarrainVial</div><div class="kpi-sub" id="kpi-lv">$ 98M · 31,4%</div><div class="badge up">▲ +2,1%</div></div>
+        <div class="kpi" style="--kc:#a05c10"><div class="kpi-lbl">Mejor mes</div><div class="kpi-val" style="color:var(--green)">Feb 2026</div><div class="kpi-sub">+$ 14,4M en el mes</div><div class="badge up">▲ +5,1%</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">🎯</div>Meta de portfolio</div><span class="card-meta" id="metaBadge2">78% completado</span></div>
+        <div class="card-b">
+          <div class="mi-top"><span class="mi-lbl">Progreso</span><span class="mi-pct" id="mi-pct">78%</span></div>
+          <div class="mi-track"><div class="mi-fill" id="mi-fill" style="width:78%"></div></div>
+          <div class="mi-labels"><span id="mi-cur">Actual: $ 312.480.000</span><span id="mi-goal">Meta: $ 400.000.000</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">📋</div>Por plataforma</div><span class="card-meta">Mar 2026</span></div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead><tr><th>Plataforma</th><th>Tipo</th><th>Monto</th><th>%</th><th>Var.</th></tr></thead>
+            <tbody>
+              <tr><td><div class="td-plat"><div class="td-av" style="background:#1a4fdb">LV</div><div><div class="td-name">LarrainVial</div><div class="td-sub">Fondos mutuos</div></div></div></td><td><span class="td-tag" style="background:#e8eeff;color:#1a4fdb">Fondos</span></td><td class="td-num val-num" data-clp="98000000">$ 98.000.000</td><td class="td-mut">31,4%</td><td><span class="td-chg up">▲ +2,1%</span></td></tr>
+              <tr><td><div class="td-plat"><div class="td-av" style="background:#a05c10">BT</div><div><div class="td-name">BTG Pactual</div><div class="td-sub">Renta fija</div></div></div></td><td><span class="td-tag" style="background:#fef4e4;color:#a05c10">Deuda</span></td><td class="td-num val-num" data-clp="74500000">$ 74.500.000</td><td class="td-mut">23,8%</td><td><span class="td-chg up">▲ +1,4%</span></td></tr>
+              <tr><td><div class="td-plat"><div class="td-av" style="background:#0d7a56">FI</div><div><div class="td-name">Fintual</div><div class="td-sub">Acciones</div></div></div></td><td><span class="td-tag" style="background:#ecfdf5;color:#0d7a56">Acc.</span></td><td class="td-num val-num" data-clp="55000000">$ 55.000.000</td><td class="td-mut">17,6%</td><td><span class="td-chg up">▲ +6,8%</span></td></tr>
+              <tr><td><div class="td-plat"><div class="td-av" style="background:#b83b2a">SA</div><div><div class="td-name">Santander</div><div class="td-sub">Cta. cte.</div></div></div></td><td><span class="td-tag" style="background:#fdecea;color:#b83b2a">Caja</span></td><td class="td-num val-num" data-clp="42000000">$ 42.000.000</td><td class="td-mut">13,4%</td><td><span class="td-chg down">▼ −0,3%</span></td></tr>
+              <tr><td><div class="td-plat"><div class="td-av" style="background:#5b21b6">NA</div><div><div class="td-name">Nauta</div><div class="td-sub">Alternativos</div></div></div></td><td><span class="td-tag" style="background:#f3e8ff;color:#5b21b6">Alt.</span></td><td class="td-num val-num" data-clp="28000000">$ 28.000.000</td><td class="td-mut">9,0%</td><td><span class="td-chg up">▲ +3,2%</span></td></tr>
+              <tr><td><div class="td-plat"><div class="td-av" style="background:#0369a1">RC</div><div><div class="td-name">Racional</div><div class="td-sub">Deuda priv.</div></div></div></td><td><span class="td-tag" style="background:#e0f2fe;color:#0369a1">Deuda</span></td><td class="td-num val-num" data-clp="14980000">$ 14.980.000</td><td class="td-mut">4,8%</td><td><span class="td-chg up">▲ +0,9%</span></td></tr>
+            </tbody>
+            <tfoot><tr><td colspan="2">Total</td><td class="td-num val-num" data-clp="312480000">$ 312.480.000</td><td></td><td><span class="td-chg up">▲ +4,2%</span></td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">📈</div>Evolución 6 meses · vs IPSA</div><span class="card-meta">con benchmark</span></div>
+        <div class="card-b"><div class="ch-wrap"><canvas id="lineResumen"></canvas></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">🍩</div>Mix del portfolio</div></div>
+        <div class="card-b">
+          <div class="donut-wrap"><canvas id="donutResumen"></canvas><div class="donut-ctr"><div class="dc-val" id="dcVal">$ 312M</div><div class="dc-sub">Total</div></div></div>
+          <div class="leg">
+            <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:#1a4fdb"></div>LarrainVial</div><span class="leg-pct">31,4%</span></div>
+            <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:#a05c10"></div>BTG</div><span class="leg-pct">23,8%</span></div>
+            <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:#0d7a56"></div>Fintual</div><span class="leg-pct">17,6%</span></div>
+            <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:#b83b2a"></div>Santander</div><span class="leg-pct">13,4%</span></div>
+            <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:#5b21b6"></div>Nauta</div><span class="leg-pct">9,0%</span></div>
+            <div class="leg-item"><div class="leg-l"><div class="leg-dot" style="background:#0369a1"></div>Racional</div><span class="leg-pct">4,8%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">💸</div>Movimientos recientes</div><span class="card-meta">Mar 2026</span></div>
+        <div class="card-b">
+          <div class="mv"><div class="mv-l"><div class="mv-ic" style="background:#ecfdf5">📥</div><div><div class="mv-title">Depósito Fintual</div><div class="mv-date">15 mar 2026</div></div></div><div><div class="mv-amt pos">+$ 5.000.000</div><div class="mv-plat">Fintual</div></div></div>
+          <div class="mv"><div class="mv-l"><div class="mv-ic" style="background:#e8eeff">📊</div><div><div class="mv-title">Rentabilidad LarrainVial</div><div class="mv-date">28 feb 2026</div></div></div><div><div class="mv-amt pos">+$ 2.058.000</div><div class="mv-plat">LarrainVial</div></div></div>
+          <div class="mv"><div class="mv-l"><div class="mv-ic" style="background:#fef4e4">🏦</div><div><div class="mv-title">Interés BTG Pactual</div><div class="mv-date">01 mar 2026</div></div></div><div><div class="mv-amt pos">+$ 1.043.000</div><div class="mv-plat">BTG</div></div></div>
+          <div class="mv"><div class="mv-l"><div class="mv-ic" style="background:#fdecea">📤</div><div><div class="mv-title">Retiro Santander</div><div class="mv-date">10 mar 2026</div></div></div><div><div class="mv-amt neg">−$ 3.000.000</div><div class="mv-plat">Santander</div></div></div>
+          <div class="mv"><div class="mv-l"><div class="mv-ic" style="background:#f3e8ff">🔮</div><div><div class="mv-title">Valorización Nauta</div><div class="mv-date">28 mar 2026</div></div></div><div><div class="mv-amt pos">+$ 896.000</div><div class="mv-plat">Nauta</div></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">🔗</div>Estado Gmail sync</div><span class="card-meta" id="syncBadge">09:14</span></div>
+        <div class="card-b">
+          <div class="si-list" id="statusList">
+            <div class="si"><div class="si-l"><div class="si-dot ok"></div><span class="si-name">Fintual</span></div><span class="si-badge ok">Sync</span></div>
+            <div class="si"><div class="si-l"><div class="si-dot ok"></div><span class="si-name">LarrainVial</span></div><span class="si-badge ok">Sync</span></div>
+            <div class="si"><div class="si-l"><div class="si-dot ok"></div><span class="si-name">BTG Pactual</span></div><span class="si-badge ok">Sync</span></div>
+            <div class="si"><div class="si-l"><div class="si-dot nd"></div><span class="si-name">Santander</span></div><span class="si-badge nd">Pendiente</span></div>
+            <div class="si"><div class="si-l"><div class="si-dot nd"></div><span class="si-name">Nauta</span></div><span class="si-badge nd">Pendiente</span></div>
+            <div class="si"><div class="si-l"><div class="si-dot ok"></div><span class="si-name">Racional</span></div><span class="si-badge ok">Sync</span></div>
+          </div>
+          <div class="log-box" id="aiLog"><span class="ll-ok">Presiona Sincronizar en el inicio para actualizar</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PLATAFORMAS -->
+<div class="screen" id="s-plataformas">
+  <div class="inner">
+    <div class="itb">
+      <div class="itb-l"><button class="back-btn" data-goto="s-cover">← Inicio</button><div class="itb-div"></div><div class="itb-title">🏦 Plataformas</div></div>
+      <div class="itb-r"><div class="curr-sw"><button class="cs-btn active" data-currency-inner="CLP">CLP</button><button class="cs-btn" data-currency-inner="UF">UF</button><button class="cs-btn" data-currency-inner="USD">USD</button></div><button class="dark-btn" data-action="dark">🌙</button></div>
+    </div>
+    <div class="icontent"><div class="plat-grid" id="platGrid"></div></div>
+  </div>
+</div>
+
+<!-- ACTIVOS -->
+<div class="screen" id="s-activos">
+  <div class="inner">
+    <div class="itb">
+      <div class="itb-l"><button class="back-btn" data-goto="s-cover">← Inicio</button><div class="itb-div"></div><div class="itb-title">⚖️ Tipo de activo</div></div>
+      <div class="itb-r"><button class="dark-btn" data-action="dark">🌙</button></div>
+    </div>
+    <div class="icontent">
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">📊</div>Distribución</div></div>
+        <div class="card-b">
+          <div class="ar"><div class="ar-top"><div class="ar-l"><div class="ar-ic" style="background:#e8eeff">📘</div><div><div class="ar-name">Deuda</div><div class="ar-desc">BTG · Racional</div></div></div><div><div class="ar-pct" style="color:#1a4fdb">38%</div><div class="ar-clp">$ 118,7M</div></div></div><div class="ar-track"><div class="ar-fill" style="width:38%;background:#1a4fdb"></div></div></div>
+          <div class="ar"><div class="ar-top"><div class="ar-l"><div class="ar-ic" style="background:#ecfdf5">📗</div><div><div class="ar-name">Acciones</div><div class="ar-desc">Fintual · LarrainVial</div></div></div><div><div class="ar-pct" style="color:#0d7a56">27%</div><div class="ar-clp">$ 84,4M</div></div></div><div class="ar-track"><div class="ar-fill" style="width:27%;background:#0d7a56"></div></div></div>
+          <div class="ar"><div class="ar-top"><div class="ar-l"><div class="ar-ic" style="background:#fef4e4">💰</div><div><div class="ar-name">Caja</div><div class="ar-desc">Santander</div></div></div><div><div class="ar-pct" style="color:#a05c10">19%</div><div class="ar-clp">$ 59,4M</div></div></div><div class="ar-track"><div class="ar-fill" style="width:19%;background:#a05c10"></div></div></div>
+          <div class="ar"><div class="ar-top"><div class="ar-l"><div class="ar-ic" style="background:#f3e8ff">🔮</div><div><div class="ar-name">Alternativo</div><div class="ar-desc">Nauta</div></div></div><div><div class="ar-pct" style="color:#5b21b6">11%</div><div class="ar-clp">$ 34,4M</div></div></div><div class="ar-track"><div class="ar-fill" style="width:11%;background:#5b21b6"></div></div></div>
+          <div class="ar"><div class="ar-top"><div class="ar-l"><div class="ar-ic" style="background:#e0f2fe">🏗️</div><div><div class="ar-name">Inmobiliario</div><div class="ar-desc">LarrainVial</div></div></div><div><div class="ar-pct" style="color:#0369a1">5%</div><div class="ar-clp">$ 15,6M</div></div></div><div class="ar-track"><div class="ar-fill" style="width:5%;background:#0369a1"></div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">🍩</div>Gráfico</div></div>
+        <div class="card-b"><div style="position:relative;height:240px"><canvas id="donutActivos"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EVOLUCIÓN -->
+<div class="screen" id="s-evolucion">
+  <div class="inner">
+    <div class="itb">
+      <div class="itb-l"><button class="back-btn" data-goto="s-cover">← Inicio</button><div class="itb-div"></div><div class="itb-title">📈 Evolución histórica</div></div>
+      <div class="itb-r"><button class="dark-btn" data-action="dark">🌙</button></div>
+    </div>
+    <div class="icontent">
+      <div class="kpi-strip">
+        <div class="kpi" style="--kc:#0c1e3c"><div class="kpi-lbl">Valor inicial</div><div class="kpi-val">$ 265M</div><div class="kpi-sub">Oct 2025</div></div>
+        <div class="kpi" style="--kc:#0d7a56"><div class="kpi-lbl">Valor actual</div><div class="kpi-val" style="color:var(--green)">$ 312,5M</div><div class="kpi-sub">Mar 2026</div></div>
+        <div class="kpi" style="--kc:#1a4fdb"><div class="kpi-lbl">Crecimiento</div><div class="kpi-val" style="color:var(--accent)">+17,9%</div><div class="kpi-sub">6 meses</div></div>
+        <div class="kpi" style="--kc:#a05c10"><div class="kpi-lbl">Alpha vs IPSA</div><div class="kpi-val" style="color:var(--amber)">+11,3pp</div><div class="kpi-sub">sobre benchmark</div></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">📈</div>Portfolio vs IPSA vs UF</div><span class="card-meta">Base 0% · Oct 2025</span></div>
+        <div class="card-b"><div class="ch-wrap-lg"><canvas id="lineEvolucion"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RENTABILIDAD -->
+<div class="screen" id="s-rentabilidad">
+  <div class="inner">
+    <div class="itb">
+      <div class="itb-l"><button class="back-btn" data-goto="s-cover">← Inicio</button><div class="itb-div"></div><div class="itb-title">🏆 Rentabilidad</div></div>
+      <div class="itb-r"><button class="dark-btn" data-action="dark">🌙</button></div>
+    </div>
+    <div class="icontent">
+      <div class="rent-grid">
+        <div class="rc"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="td-av" style="background:#0d7a56;width:26px;height:26px;border-radius:7px;font-size:.58rem;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center">FI</div><div class="rc-name">Fintual</div></div><div class="rc-type">Acciones globales</div><div class="rc-pct pos">+18,4%</div><div class="rc-sub">YTD · +$ 10,1M</div><div class="rc-bar-track"><div class="rc-bar-fill" style="width:100%;background:#0d7a56;height:100%"></div></div></div>
+        <div class="rc"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="td-av" style="background:#5b21b6;width:26px;height:26px;border-radius:7px;font-size:.58rem;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center">NA</div><div class="rc-name">Nauta</div></div><div class="rc-type">Alternativos</div><div class="rc-pct pos">+12,8%</div><div class="rc-sub">YTD · +$ 3,6M</div><div class="rc-bar-track"><div class="rc-bar-fill" style="width:69%;background:#5b21b6;height:100%"></div></div></div>
+        <div class="rc"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="td-av" style="background:#1a4fdb;width:26px;height:26px;border-radius:7px;font-size:.58rem;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center">LV</div><div class="rc-name">LarrainVial</div></div><div class="rc-type">Fondos mutuos</div><div class="rc-pct pos">+9,6%</div><div class="rc-sub">YTD · +$ 9,4M</div><div class="rc-bar-track"><div class="rc-bar-fill" style="width:52%;background:#1a4fdb;height:100%"></div></div></div>
+        <div class="rc"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="td-av" style="background:#0369a1;width:26px;height:26px;border-radius:7px;font-size:.58rem;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center">RC</div><div class="rc-name">Racional</div></div><div class="rc-type">Deuda privada</div><div class="rc-pct pos">+8,2%</div><div class="rc-sub">YTD · +$ 1,2M</div><div class="rc-bar-track"><div class="rc-bar-fill" style="width:44%;background:#0369a1;height:100%"></div></div></div>
+        <div class="rc"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="td-av" style="background:#a05c10;width:26px;height:26px;border-radius:7px;font-size:.58rem;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center">BT</div><div class="rc-name">BTG Pactual</div></div><div class="rc-type">Renta fija</div><div class="rc-pct pos">+6,1%</div><div class="rc-sub">YTD · +$ 4,5M</div><div class="rc-bar-track"><div class="rc-bar-fill" style="width:33%;background:#a05c10;height:100%"></div></div></div>
+        <div class="rc"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="td-av" style="background:#b83b2a;width:26px;height:26px;border-radius:7px;font-size:.58rem;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center">SA</div><div class="rc-name">Santander</div></div><div class="rc-type">Caja</div><div class="rc-pct neg">−0,3%</div><div class="rc-sub">YTD · −$ 0,1M</div><div class="rc-bar-track"><div class="rc-bar-fill" style="width:2%;background:#b83b2a;height:100%"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">⚔️</div>Portfolio vs IPSA · % acumulado</div><span class="card-meta">Base 0%</span></div>
+        <div class="card-b">
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+            <div style="background:rgba(13,122,86,.1);border:1px solid rgba(13,122,86,.2);border-radius:7px;padding:8px 12px;flex:1;min-width:100px"><div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px">Portfolio</div><div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--green)">+17,9%</div></div>
+            <div style="background:rgba(26,79,219,.1);border:1px solid rgba(26,79,219,.2);border-radius:7px;padding:8px 12px;flex:1;min-width:100px"><div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px">IPSA</div><div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--accent)">+6,6%</div></div>
+            <div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:7px;padding:8px 12px;flex:1;min-width:100px"><div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px">Alpha</div><div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:#f59e0b">+11,3pp</div></div>
+          </div>
+          <div style="position:relative;height:260px"><canvas id="chartVsIpsa"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">📊</div>Barras comparadas</div><span class="card-meta">YTD 2026</span></div>
+        <div class="card-b"><div class="ch-wrap-lg"><canvas id="barRent"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INFORME -->
+<div class="screen" id="s-informe">
+  <div class="inner">
+    <div class="itb">
+      <div class="itb-l"><button class="back-btn" data-goto="s-cover">← Inicio</button><div class="itb-div"></div><div class="itb-title">📄 Informe PDF</div></div>
+      <div class="itb-r"><button class="dark-btn" data-action="dark">🌙</button></div>
+    </div>
+    <div class="icontent">
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">⚙️</div>Opciones</div></div>
+        <div class="card-b">
+          <div class="sg"><div class="sg-lbl">Destinatario</div><input class="sg-input" id="pdfRecipient" type="text" value="Familia Mac-Lean del Sante"></div>
+          <div class="sg"><div class="sg-lbl">Período</div>
+            <select class="sg-input" id="pdfPeriod">
+              <option value="mes">Mes actual (Mar 2026)</option>
+              <option value="trimestre">Q1 2026</option>
+              <option value="ytd">Año a la fecha (YTD)</option>
+              <option value="6m">Últimos 6 meses</option>
+            </select>
+          </div>
+          <button class="sg-btn primary" data-action="genpdf" id="btnGenPDF">🤖 Generar con IA</button>
+          <button class="sg-btn primary" style="background:var(--green);margin-left:8px;display:none" data-action="downpdf" id="btnDownPDF">⬇️ Descargar PDF</button>
+          <div id="pdfStatus" style="font-size:.68rem;color:var(--muted);margin-top:8px"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">👁</div>Vista previa</div></div>
+        <div class="card-b" id="pdfPreview">
+          <div style="text-align:center;padding:30px;opacity:.4;font-size:.75rem">Genera el informe para ver la vista previa</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SEMANAL -->
+<div class="screen" id="s-semanal">
+  <div class="inner">
+    <div class="itb">
+      <div class="itb-l"><button class="back-btn" data-goto="s-cover">← Inicio</button><div class="itb-div"></div><div class="itb-title">📬 Resumen semanal IA</div></div>
+      <div class="itb-r"><button class="sg-btn primary" data-action="weekly" id="btnSemanal">✦ Generar</button><button class="dark-btn" data-action="dark">🌙</button></div>
+    </div>
+    <div class="icontent">
+      <div class="semanal-notice"><div style="font-size:1.1rem">🔔</div><div><div style="font-size:.72rem;font-weight:700;color:var(--text);margin-bottom:2px">Auto cada lunes</div><div style="font-size:.64rem;color:var(--muted)">Claude analiza tu portfolio y el mercado automáticamente</div></div></div>
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">📋</div>Análisis semanal</div><span class="card-meta" id="semanalDate">Semana del 24–28 mar 2026</span></div>
+        <div class="card-b" id="semanalContent"><div style="text-align:center;padding:30px;opacity:.4;font-size:.75rem">Presiona Generar para el análisis de esta semana</div></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">🗂</div>Resúmenes anteriores</div></div>
+        <div class="card-b" id="semanalHistory"><div style="font-size:.72rem;color:var(--muted);text-align:center;padding:16px;opacity:.5">Sin historial aún</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIG -->
+<div class="screen" id="s-config">
+  <div class="inner">
+    <div class="itb">
+      <div class="itb-l"><button class="back-btn" data-goto="s-cover">← Inicio</button><div class="itb-div"></div><div class="itb-title">⚙️ Configuración</div></div>
+      <div class="itb-r"><button class="dark-btn" data-action="dark">🌙</button></div>
+    </div>
+    <div class="icontent">
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">🎯</div>Meta de portfolio</div></div>
+        <div class="card-b">
+          <div class="sg"><div class="sg-lbl">Meta en CLP</div><input class="sg-input" type="number" id="cfgMeta" value="400000000"></div>
+          <button class="sg-btn primary" data-action="savemeta">💾 Guardar</button>
+          <span class="sg-ok" id="metaOk">✓ Guardado</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">💱</div>Tipos de cambio</div></div>
+        <div class="card-b">
+          <div class="sg"><div class="sg-lbl">USD / CLP</div><input class="sg-input" type="number" id="cfgUSD" value="942"></div>
+          <div class="sg"><div class="sg-lbl">UF / CLP</div><input class="sg-input" type="number" id="cfgUF" value="40000"></div>
+          <button class="sg-btn primary" data-action="saverates">💾 Guardar</button>
+          <span class="sg-ok" id="ratesOk">✓ Guardado</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-t"><div class="card-icon">🌙</div>Apariencia</div></div>
+        <div class="card-b">
+          <div style="display:flex;gap:8px">
+            <button class="sg-btn primary" data-action="theme-light">☀️ Claro</button>
+            <button class="sg-btn primary" style="background:var(--s3);color:var(--text);border:1px solid var(--rule)" data-action="theme-dark">🌙 Oscuro</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<script>
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+var APP = {
+  currency: 'CLP',
+  usdRate: 942,
+  ufRate: 40000,
+  meta: 400000000,
+  notes: {},
+  chartsInit: {}
+};
+var TOTAL = 312480000;
+var pdfContent = '';
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function goTo(id) {
+  var target = document.getElementById(id);
+  if (!target) return;
+  var screens = document.querySelectorAll('.screen');
+  for (var i = 0; i < screens.length; i++) {
+    screens[i].classList.remove('active');
+  }
+  target.classList.add('active');
+  if (id === 's-resumen' && !APP.chartsInit.resumen) { initResumenCharts(); APP.chartsInit.resumen = true; }
+  if (id === 's-activos' && !APP.chartsInit.activos) { initActivosChart(); APP.chartsInit.activos = true; }
+  if (id === 's-evolucion' && !APP.chartsInit.evolucion) { initEvolChart(); APP.chartsInit.evolucion = true; }
+  if (id === 's-rentabilidad' && !APP.chartsInit.rent) { initRentCharts(); APP.chartsInit.rent = true; }
+  if (id === 's-plataformas') renderPlatCards();
+}
+
+// ═══════════════════════════════════════
+// DARK MODE
+// ═══════════════════════════════════════
+function setTheme(t) { document.documentElement.setAttribute('data-theme', t); saveSettings(); }
+function toggleDark() {
+  var cur = document.documentElement.getAttribute('data-theme');
+  setTheme(cur === 'dark' ? 'light' : 'dark');
+}
+
+// ═══════════════════════════════════════
+// CURRENCY
+// ═══════════════════════════════════════
+function fmtFull(clp) {
+  var c = APP.currency;
+  if (c === 'UF') return 'UF ' + Math.round(clp / APP.ufRate).toLocaleString('es-CL');
+  if (c === 'USD') return 'USD ' + Math.round(clp / APP.usdRate).toLocaleString('es-CL');
+  return '$ ' + Math.round(clp).toLocaleString('es-CL');
+}
+function fmtShort(clp) {
+  var c = APP.currency;
+  if (c === 'UF') return 'UF ' + (clp / APP.ufRate).toFixed(1);
+  if (c === 'USD') return 'USD ' + Math.round(clp / APP.usdRate).toLocaleString('es-CL');
+  if (clp >= 1000000) return '$ ' + (clp / 1000000).toFixed(1) + 'M';
+  return '$ ' + Math.round(clp).toLocaleString('es-CL');
+}
+
+function setCurrency(c, btn) {
+  APP.currency = c;
+  var btns = document.querySelectorAll('.curr-tog .ct-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  if (btn) btn.classList.add('active');
+  updateCurrencyDisplay();
+}
+function setCurrencyInner(c, btn) {
+  APP.currency = c;
+  var groups = document.querySelectorAll('.curr-sw');
+  for (var g = 0; g < groups.length; g++) {
+    var bs = groups[g].querySelectorAll('.cs-btn');
+    for (var i = 0; i < bs.length; i++) bs[i].classList.remove('active');
+  }
+  if (btn) btn.classList.add('active');
+  updateCurrencyDisplay();
+}
+
+function updateCurrencyDisplay() {
+  var ct = document.getElementById('coverTotal');
+  if (ct) ct.textContent = fmtFull(TOTAL);
+  var dc = document.getElementById('dcVal');
+  if (dc) dc.textContent = fmtShort(TOTAL);
+  var kt = document.getElementById('kpi-total');
+  if (kt) kt.textContent = fmtShort(TOTAL);
+  var klv = document.getElementById('kpi-lv');
+  if (klv) klv.textContent = fmtShort(98000000) + ' · 31,4%';
+  var kts = document.getElementById('kpi-total-sub');
+  if (kts) kts.textContent = APP.currency === 'CLP' ? 'UF 7.812,0' : fmtFull(TOTAL) + ' CLP';
+  var els = document.querySelectorAll('.val-num');
+  for (var i = 0; i < els.length; i++) {
+    var clp = parseFloat(els[i].getAttribute('data-clp'));
+    if (!isNaN(clp)) els[i].textContent = fmtFull(clp);
+  }
+  var pcAmts = document.querySelectorAll('.pc-amt');
+  for (var i = 0; i < pcAmts.length; i++) {
+    var clp = parseFloat(pcAmts[i].getAttribute('data-clp'));
+    if (!isNaN(clp)) pcAmts[i].textContent = fmtFull(clp);
+  }
+  updateMeta();
+}
+
+// ═══════════════════════════════════════
+// META
+// ═══════════════════════════════════════
+function updateMeta() {
+  var pct = Math.min(100, Math.round(TOTAL / APP.meta * 100));
+  var remain = Math.max(0, APP.meta - TOTAL);
+  var els = [
+    ['metaFill', null, 'width', pct + '%'],
+    ['mi-fill', null, 'width', pct + '%'],
+    ['metaPctLbl', pct + '% completado'],
+    ['metaBadge2', pct + '% completado'],
+    ['mi-pct', pct + '%'],
+    ['metaGoalLbl', fmtFull(APP.meta)],
+    ['metaRemain', fmtFull(remain)],
+    ['mi-cur', 'Actual: ' + fmtFull(TOTAL)],
+    ['mi-goal', 'Meta: ' + fmtFull(APP.meta)]
+  ];
+  for (var i = 0; i < els.length; i++) {
+    var el = document.getElementById(els[i][0]);
+    if (!el) continue;
+    if (els[i][2] === 'width') el.style.width = els[i][3];
+    else el.textContent = els[i][1];
+  }
+}
+
+function saveMeta() {
+  APP.meta = parseFloat(document.getElementById('cfgMeta').value) || 400000000;
+  updateMeta(); saveSettings();
+  var ok = document.getElementById('metaOk');
+  ok.style.display = 'inline';
+  setTimeout(function() { ok.style.display = 'none'; }, 2000);
+}
+
+// ═══════════════════════════════════════
+// RATES
+// ═══════════════════════════════════════
+function saveRates() {
+  APP.usdRate = parseFloat(document.getElementById('cfgUSD').value) || 942;
+  APP.ufRate = parseFloat(document.getElementById('cfgUF').value) || 40000;
+  updateCurrencyDisplay(); saveSettings();
+  var ok = document.getElementById('ratesOk');
+  ok.style.display = 'inline';
+  setTimeout(function() { ok.style.display = 'none'; }, 2000);
+}
+
+// ═══════════════════════════════════════
+// SETTINGS STORAGE
+// ═══════════════════════════════════════
+function saveSettings() {
+  try {
+    localStorage.setItem('mlds-settings', JSON.stringify({
+      meta: APP.meta, usdRate: APP.usdRate, ufRate: APP.ufRate, notes: APP.notes,
+      theme: document.documentElement.getAttribute('data-theme')
+    }));
+  } catch(e) {}
+}
+function loadSettings() {
+  try {
+    var raw = localStorage.getItem('mlds-settings');
+    if (!raw) return;
+    var d = JSON.parse(raw);
+    if (d.meta) APP.meta = d.meta;
+    if (d.usdRate) APP.usdRate = d.usdRate;
+    if (d.ufRate) APP.ufRate = d.ufRate;
+    if (d.notes) APP.notes = d.notes;
+    if (d.theme) setTheme(d.theme);
+    var cfgM = document.getElementById('cfgMeta');
+    var cfgU = document.getElementById('cfgUSD');
+    var cfgF = document.getElementById('cfgUF');
+    if (cfgM) cfgM.value = APP.meta;
+    if (cfgU) cfgU.value = APP.usdRate;
+    if (cfgF) cfgF.value = APP.ufRate;
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+// PLATFORM CARDS
+// ═══════════════════════════════════════
+var PLATS = [
+  {key:'larrain',av:'LV',name:'LarrainVial',type:'Fondos mutuos',clp:98000000,pct:31.4,chg:'+2,1%',up:true,pc:'#1a4fdb',ok:true,bar:100},
+  {key:'btg',    av:'BT',name:'BTG Pactual',type:'Renta fija',   clp:74500000,pct:23.8,chg:'+1,4%',up:true,pc:'#a05c10',ok:true,bar:76},
+  {key:'fintual',av:'FI',name:'Fintual',    type:'Acciones',     clp:55000000,pct:17.6,chg:'+6,8%',up:true,pc:'#0d7a56',ok:true,bar:56},
+  {key:'santander',av:'SA',name:'Santander',type:'Cta. cte.',    clp:42000000,pct:13.4,chg:'−0,3%',up:false,pc:'#b83b2a',ok:false,bar:43},
+  {key:'nauta',  av:'NA',name:'Nauta',      type:'Alternativos', clp:28000000,pct:9.0, chg:'+3,2%',up:true,pc:'#5b21b6',ok:false,bar:29},
+  {key:'racional',av:'RC',name:'Racional',  type:'Deuda priv.',  clp:14980000,pct:4.8, chg:'+0,9%',up:true,pc:'#0369a1',ok:true,bar:15}
+];
+
+function renderPlatCards() {
+  var grid = document.getElementById('platGrid');
+  if (!grid) return;
+  grid.innerHTML = PLATS.map(function(p) {
+    var note = APP.notes[p.key] || '';
+    return '<div class="pc" style="--pc:' + p.pc + '">' +
+      '<div class="pc-hdr"><div class="pc-av">' + p.av + '</div>' +
+      '<div class="pc-ok ' + (p.ok ? 'ok' : 'nd') + '"><div class="pc-dot"></div>' + (p.ok ? 'Sync' : 'Pendiente') + '</div></div>' +
+      '<div class="pc-name">' + p.name + '</div>' +
+      '<div class="pc-type">' + p.type + '</div>' +
+      '<div class="pc-amt" data-clp="' + p.clp + '">' + fmtFull(p.clp) + '</div>' +
+      '<div class="pc-uf">UF ' + Math.round(p.clp / APP.ufRate).toLocaleString('es-CL') + '</div>' +
+      '<div class="pc-track"><div class="pc-fill" style="width:' + p.bar + '%"></div></div>' +
+      '<div class="pc-foot"><span class="pc-pct">' + p.pct + '%</span><span class="pc-chg ' + (p.up ? 'up' : 'down') + '">' + (p.up ? '▲' : '▼') + ' ' + p.chg + '</span></div>' +
+      '<div class="pc-note"><textarea placeholder="Añadir nota..." id="note-' + p.key + '">' + note + '</textarea>' +
+      '<button class="pc-note-btn" data-note-save="' + p.key + '">💾 Guardar nota</button>' +
+      '<span class="pc-note-ok" id="nok-' + p.key + '">✓</span></div></div>';
+  }).join('');
+}
+
+function saveNote(key) {
+  var ta = document.getElementById('note-' + key);
+  if (!ta) return;
+  APP.notes[key] = ta.value;
+  saveSettings();
+  var ok = document.getElementById('nok-' + key);
+  if (ok) { ok.style.display = 'inline'; setTimeout(function() { ok.style.display = 'none'; }, 1600); }
+}
+
+// ═══════════════════════════════════════
+// CHART DATA
+// ═══════════════════════════════════════
+var PC = ['#1a4fdb','#a05c10','#0d7a56','#b83b2a','#5b21b6','#0369a1'];
+var PL = ['LarrainVial','BTG','Fintual','Santander','Nauta','Racional'];
+var PD = [98000000,74500000,55000000,42000000,28000000,14980000];
+var HIST = [
+  {l:'Oct 25',v:265000000,ipsa:6800,uf:38775},
+  {l:'Nov 25',v:271500000,ipsa:6920,uf:38900},
+  {l:'Dic 25',v:278000000,ipsa:7010,uf:39050},
+  {l:'Ene 26',v:285400000,ipsa:7080,uf:39300},
+  {l:'Feb 26',v:299800000,ipsa:7180,uf:39600},
+  {l:'Mar 26',v:312480000,ipsa:7248,uf:40000}
+];
+
+var TT = {
+  backgroundColor:'#0c1e3c', titleColor:'#f5f2ed', bodyColor:'#8696ad',
+  borderColor:'rgba(12,30,60,.12)', borderWidth:1, padding:10, cornerRadius:7,
+  titleFont:{size:10,family:'DM Sans'}, bodyFont:{size:10,family:'DM Mono'}
+};
+
+function gc() { return getComputedStyle(document.documentElement).getPropertyValue('--rule').trim() || '#e0dbd2'; }
+function surf() { return getComputedStyle(document.documentElement).getPropertyValue('--surf').trim() || '#fff'; }
+
+// Pie labels plugin
+var piePlugin = {
+  id: 'pieLabels',
+  afterDatasetDraw: function(chart) {
+    var ctx = chart.ctx;
+    var data = chart.data;
+    var total = data.datasets[0].data.reduce(function(a,b){return a+b;},0);
+    chart.getDatasetMeta(0).data.forEach(function(arc, i) {
+      var val = data.datasets[0].data[i];
+      var pct = Math.round(val/total*100);
+      if (pct < 6) return;
+      var angle = (arc.startAngle + arc.endAngle) / 2;
+      var r = (arc.outerRadius + arc.innerRadius) / 2;
+      var x = arc.x + Math.cos(angle)*r;
+      var y = arc.y + Math.sin(angle)*r;
+      ctx.save();
+      ctx.fillStyle = 'rgba(255,255,255,.93)';
+      ctx.font = 'bold 11px DM Sans,sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(pct+'%', x, y-4);
+      ctx.font = '8.5px DM Sans,sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,.7)';
+      var lbl = PL[i] ? (PL[i].length > 7 ? PL[i].slice(0,6)+'.' : PL[i]) : '';
+      ctx.fillText(lbl, x, y+6);
+      ctx.restore();
+    });
+  }
+};
+
+// Line data labels plugin
+var lineLabels = {
+  id: 'lineLabels',
+  afterDatasetsDraw: function(chart) {
+    var ctx = chart.ctx;
+    var data = chart.data;
+    chart.getDatasetMeta(0).data.forEach(function(pt, i) {
+      var val = data.datasets[0].data[i];
+      var label = '$ ' + (val/1000000).toFixed(1) + 'M';
+      var x = pt.x, y = pt.y - 15;
+      ctx.save();
+      var w = ctx.measureText(label).width + 12;
+      ctx.fillStyle = '#0c1e3c';
+      ctx.beginPath();
+      ctx.roundRect(x-w/2, y-8, w, 16, 3);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = '600 9px DM Sans,sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(label, x, y);
+      ctx.restore();
+    });
+  }
+};
+
+// End labels for % chart
+var endLabels = {
+  id: 'endLabels',
+  afterDatasetsDraw: function(chart) {
+    var ctx = chart.ctx;
+    chart.data.datasets.forEach(function(ds, di) {
+      var meta = chart.getDatasetMeta(di);
+      var last = meta.data[meta.data.length-1];
+      if (!last) return;
+      var val = ds.data[ds.data.length-1];
+      var lbl = (val >= 0 ? '+' : '') + val.toFixed(1) + '%';
+      ctx.save();
+      ctx.fillStyle = ds.borderColor;
+      ctx.font = 'bold 9.5px DM Sans,sans-serif';
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText(lbl, last.x+5, last.y);
+      ctx.restore();
+    });
+  }
+};
+
+// Zero line
+var zeroLine = {
+  id: 'zeroLine',
+  afterDraw: function(chart) {
+    var ctx = chart.ctx;
+    var x = chart.scales.x;
+    var y = chart.scales.y;
+    var yZ = y.getPixelForValue(0);
+    ctx.save();
+    ctx.strokeStyle = 'rgba(184,59,42,.35)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(x.left, yZ); ctx.lineTo(x.right, yZ); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+};
+
+function mkGrad(ctx, h, r, g, b) {
+  var gr = ctx.createLinearGradient(0,0,0,h);
+  gr.addColorStop(0,'rgba('+r+','+g+','+b+',.15)');
+  gr.addColorStop(1,'rgba('+r+','+g+','+b+',.01)');
+  return gr;
+}
+
+// ═══════════════════════════════════════
+// CHARTS
+// ═══════════════════════════════════════
+function initResumenCharts() {
+  // Donut
+  new Chart(document.getElementById('donutResumen'), {
+    type: 'doughnut', plugins: [piePlugin],
+    data: {labels:PL, datasets:[{data:PD, backgroundColor:PC, borderWidth:3, borderColor:surf(), hoverOffset:8}]},
+    options: {responsive:true, maintainAspectRatio:false, cutout:'60%',
+      animation:{duration:900,easing:'easeOutQuart'},
+      plugins:{legend:{display:false}, tooltip:{...TT, callbacks:{label:function(ctx){
+        var t=ctx.dataset.data.reduce(function(a,b){return a+b;},0);
+        return ' '+PL[ctx.dataIndex]+': $ '+ctx.raw.toLocaleString('es-CL')+' ('+Math.round(ctx.raw/t*100)+'%)';
+      }}}}}
+  });
+  // Line
+  var lc = document.getElementById('lineResumen').getContext('2d');
+  var g = mkGrad(lc,200,26,79,219);
+  new Chart(lc, {
+    type:'line', plugins:[lineLabels],
+    data:{labels:HIST.map(function(d){return d.l;}), datasets:[
+      {label:'Portfolio',data:HIST.map(function(d){return d.v;}),borderColor:'#1a4fdb',backgroundColor:g,borderWidth:2.5,pointBackgroundColor:'#1a4fdb',pointBorderColor:surf(),pointBorderWidth:2.5,pointRadius:5,fill:true,tension:0.4,yAxisID:'y'},
+      {label:'IPSA ref',data:HIST.map(function(d){return d.ipsa*37000;}),borderColor:'#a05c10',backgroundColor:'transparent',borderWidth:1.5,borderDash:[5,4],pointRadius:3,pointBackgroundColor:'#a05c10',tension:0.4,yAxisID:'y'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:30}},
+      interaction:{mode:'index',intersect:false}, animation:{duration:900},
+      plugins:{legend:{display:true,labels:{boxWidth:10,font:{size:10,family:'DM Sans'},color:'#7a8fa8',padding:14}},
+        tooltip:{...TT,callbacks:{label:function(ctx){return ' '+ctx.dataset.label+': $ '+Math.round(ctx.raw).toLocaleString('es-CL');}}}},
+      scales:{
+        x:{grid:{color:gc()},ticks:{color:'#7a8fa8',font:{family:'DM Sans',size:10}}},
+        y:{grid:{color:gc()},ticks:{color:'#7a8fa8',font:{family:'DM Sans',size:10},callback:function(v){return '$ '+(v/1000000).toFixed(0)+'M';}}}
+      }}
+  });
+}
+
+function initActivosChart() {
+  var AL = ['Deuda','Acciones','Caja','Alternativo','Inmobiliario'];
+  var AD = [38,27,19,11,5];
+  var AC = ['#1a4fdb','#0d7a56','#a05c10','#5b21b6','#0369a1'];
+  var actPie = {id:'actPie', afterDatasetDraw:function(chart){
+    var ctx=chart.ctx, data=chart.data;
+    var total=data.datasets[0].data.reduce(function(a,b){return a+b;},0);
+    chart.getDatasetMeta(0).data.forEach(function(arc,i){
+      var pct=Math.round(data.datasets[0].data[i]/total*100); if(pct<5)return;
+      var angle=(arc.startAngle+arc.endAngle)/2, r=(arc.outerRadius+arc.innerRadius)/2;
+      var x=arc.x+Math.cos(angle)*r, y=arc.y+Math.sin(angle)*r;
+      ctx.save(); ctx.fillStyle='rgba(255,255,255,.93)'; ctx.font='bold 11px DM Sans,sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(pct+'%',x,y-4);
+      ctx.font='8.5px DM Sans,sans-serif'; ctx.fillStyle='rgba(255,255,255,.7)';
+      ctx.fillText(AL[i],x,y+6); ctx.restore();
+    });
+  }};
+  new Chart(document.getElementById('donutActivos'), {
+    type:'doughnut', plugins:[actPie],
+    data:{labels:AL, datasets:[{data:AD, backgroundColor:AC, borderWidth:3, borderColor:surf(), hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'58%',animation:{duration:900},
+      plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:function(ctx){return ' '+AL[ctx.dataIndex]+': '+ctx.raw+'%';}}}}}
+  });
+}
+
+function initEvolChart() {
+  var lc = document.getElementById('lineEvolucion').getContext('2d');
+  var base = HIST[0].v, iBase = HIST[0].ipsa, uBase = HIST[0].uf;
+  var portRet = HIST.map(function(d){return parseFloat(((d.v/base-1)*100).toFixed(2));});
+  var ipsaRet = HIST.map(function(d){return parseFloat(((d.ipsa/iBase-1)*100).toFixed(2));});
+  var ufRet   = HIST.map(function(d){return parseFloat(((d.uf/uBase-1)*100).toFixed(2));});
+  var g = mkGrad(lc,260,13,122,86);
+  new Chart(lc, {
+    type:'line', plugins:[endLabels,zeroLine],
+    data:{labels:HIST.map(function(d){return d.l;}), datasets:[
+      {label:'Portfolio Mac-Lean',data:portRet,borderColor:'#0d7a56',backgroundColor:g,borderWidth:2.5,fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:'#0d7a56',pointBorderColor:surf(),pointBorderWidth:2.5,pointHoverRadius:7},
+      {label:'IPSA',data:ipsaRet,borderColor:'#1a4fdb',backgroundColor:'transparent',borderWidth:2,borderDash:[6,4],tension:0.4,pointRadius:3,pointBackgroundColor:'#1a4fdb',pointBorderColor:surf(),pointBorderWidth:2},
+      {label:'UF',data:ufRet,borderColor:'#9ca3af',backgroundColor:'transparent',borderWidth:1.5,borderDash:[3,4],tension:0.3,pointRadius:3,pointBackgroundColor:'#9ca3af'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{right:50,top:10}},
+      interaction:{mode:'index',intersect:false}, animation:{duration:900},
+      plugins:{legend:{display:true,labels:{boxWidth:10,font:{size:10,family:'DM Sans'},color:'#7a8fa8',padding:14}},
+        tooltip:{...TT,callbacks:{label:function(ctx){var v=ctx.raw;return ' '+ctx.dataset.label+': '+(v>=0?'+':'')+v.toFixed(2)+'%';}}}},
+      scales:{
+        x:{grid:{color:gc()},ticks:{color:'#7a8fa8',font:{family:'DM Sans',size:10}}},
+        y:{grid:{color:gc()},ticks:{color:'#7a8fa8',font:{family:'DM Mono',size:9},callback:function(v){return (v>=0?'+':'')+v.toFixed(1)+'%';}}}
+      }}
+  });
+}
+
+function initRentCharts() {
+  // Bar
+  var labels = ['Fintual','Nauta','LarrainVial','Racional','BTG','Santander'];
+  var values = [18.4,12.8,9.6,8.2,6.1,-0.3];
+  var colors = values.map(function(v){return v>=0?'#0d7a56':'#b83b2a';});
+  new Chart(document.getElementById('barRent'), {
+    type:'bar',
+    data:{labels:labels, datasets:[{data:values,backgroundColor:colors,borderRadius:5,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:function(ctx){return ' '+(ctx.raw>0?'+':'')+ctx.raw+'% YTD';}}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#7a8fa8',font:{family:'DM Sans',size:10}}},
+        y:{grid:{color:gc()},ticks:{color:'#7a8fa8',font:{family:'DM Sans',size:10},callback:function(v){return v+'%';}},min:-2,max:22}
+      }}
+  });
+  // Portfolio vs IPSA %
+  var base = HIST[0].v, iBase = HIST[0].ipsa, uBase = HIST[0].uf;
+  var portRet = HIST.map(function(d){return parseFloat(((d.v/base-1)*100).toFixed(2));});
+  var ipsaRet = HIST.map(function(d){return parseFloat(((d.ipsa/iBase-1)*100).toFixed(2));});
+  var ufRet   = HIST.map(function(d){return parseFloat(((d.uf/uBase-1)*100).toFixed(2));});
+  var lc2 = document.getElementById('chartVsIpsa').getContext('2d');
+  var g2 = mkGrad(lc2,260,13,122,86);
+  new Chart(lc2, {
+    type:'line', plugins:[endLabels,zeroLine],
+    data:{labels:HIST.map(function(d){return d.l;}), datasets:[
+      {label:'Portfolio',data:portRet,borderColor:'#0d7a56',backgroundColor:g2,borderWidth:2.5,fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:'#0d7a56',pointBorderColor:surf(),pointBorderWidth:2.5,pointHoverRadius:7},
+      {label:'IPSA',data:ipsaRet,borderColor:'#1a4fdb',backgroundColor:'transparent',borderWidth:2,borderDash:[6,4],tension:0.4,pointRadius:3,pointBackgroundColor:'#1a4fdb',pointBorderColor:surf(),pointBorderWidth:2},
+      {label:'UF',data:ufRet,borderColor:'#9ca3af',backgroundColor:'transparent',borderWidth:1.5,borderDash:[3,4],tension:0.3,pointRadius:3,pointBackgroundColor:'#9ca3af'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{right:50,top:10}},
+      interaction:{mode:'index',intersect:false}, animation:{duration:900},
+      plugins:{legend:{display:true,labels:{boxWidth:10,font:{size:10,family:'DM Sans'},color:'#7a8fa8',padding:14}},
+        tooltip:{...TT,callbacks:{label:function(ctx){var v=ctx.raw;return ' '+ctx.dataset.label+': '+(v>=0?'+':'')+v.toFixed(2)+'%';}}}},
+      scales:{
+        x:{grid:{color:gc()},ticks:{color:'#7a8fa8',font:{family:'DM Sans',size:10}}},
+        y:{grid:{color:gc()},ticks:{color:'#7a8fa8',font:{family:'DM Mono',size:9},callback:function(v){return (v>=0?'+':'')+v.toFixed(1)+'%';}}}
+      }}
+  });
+}
+
+// ═══════════════════════════════════════
+// SYNC GMAIL
+// ═══════════════════════════════════════
+function log(msg, type) {
+  var el = document.getElementById('aiLog');
+  if (!el) return;
+  var s = document.createElement('span');
+  s.className = 'll-' + (type||'info');
+  var ts = new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  s.textContent = '['+ts+'] '+msg+'\n';
+  el.appendChild(s);
+  el.scrollTop = el.scrollHeight;
+}
+
+function syncGmail() {
+  var navIcon = document.getElementById('syncNavIcon');
+  if (navIcon) { navIcon.className = 'spin'; navIcon.textContent = '↻'; }
+
+  var aiLog = document.getElementById('aiLog');
+  if (aiLog) aiLog.innerHTML = '';
+  log('Buscando indicadores del día...','info');
+
+  // Step 1: Market rates
+  fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514', max_tokens:500,
+      tools:[{type:'web_search_20250305',name:'web_search'}],
+      messages:[{role:'user',content:'Busca en la web los valores de hoy de UF en CLP, dólar observado USD/CLP, TPM del Banco Central de Chile, e IPSA. Responde SOLO con JSON sin texto: {"uf":número,"usd":número,"tpm":número,"ipsa":número}'}]
+    })
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    var text = data.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    var m = text.match(/\{[^}]+\}/);
+    if (m) {
+      var rates = JSON.parse(m[0]);
+      if (rates.uf && rates.uf > 1000) {
+        APP.ufRate = rates.uf;
+        var el = document.getElementById('mkt-uf');
+        if (el) el.textContent = '$ ' + Math.round(rates.uf).toLocaleString('es-CL');
+        var cfgUF = document.getElementById('cfgUF');
+        if (cfgUF) cfgUF.value = Math.round(rates.uf);
+        log('UF: $ ' + Math.round(rates.uf).toLocaleString('es-CL'), 'ok');
+      }
+      if (rates.usd && rates.usd > 100) {
+        APP.usdRate = rates.usd;
+        var el2 = document.getElementById('mkt-usd');
+        if (el2) el2.textContent = '$ ' + Math.round(rates.usd).toLocaleString('es-CL');
+        var cfgUSD = document.getElementById('cfgUSD');
+        if (cfgUSD) cfgUSD.value = Math.round(rates.usd);
+        log('USD/CLP: $ ' + Math.round(rates.usd).toLocaleString('es-CL'), 'ok');
+      }
+      if (rates.tpm) { var el3=document.getElementById('mkt-tpm'); if(el3) el3.textContent=rates.tpm+'%'; log('TPM: '+rates.tpm+'%','ok'); }
+      if (rates.ipsa) { var el4=document.getElementById('mkt-ipsa'); if(el4) el4.textContent=Math.round(rates.ipsa).toLocaleString('es-CL'); log('IPSA: '+Math.round(rates.ipsa).toLocaleString('es-CL'),'ok'); }
+      updateCurrencyDisplay();
+      saveSettings();
+    }
+  })
+  .catch(function(){log('No se pudieron obtener indicadores','warn');})
+  .finally(function(){
+    // Step 2: Gmail
+    log('Buscando emails de inversiones...','info');
+    fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:800,
+        messages:[{role:'user',content:'Busca en Gmail emails de los últimos 30 días de: Fintual, LarrainVial, BTG Pactual, Santander, Nauta, Racional. Extrae montos en CLP. SOLO JSON: {"platforms":{"fintual":{"found":true,"clp":55000000},"larrain":{"found":true,"clp":98000000},"btg":{"found":true,"clp":74500000},"santander":{"found":false,"clp":null},"nauta":{"found":false,"clp":null},"racional":{"found":true,"clp":14980000}},"summary":"texto"}'}],
+        mcp_servers:[{type:'url',url:'https://gmail.mcp.claude.com/mcp',name:'gmail-mcp'}]
+      })
+    })
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var text = data.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+      var m = text.match(/\{[\s\S]*\}/);
+      if (m) {
+        var parsed = JSON.parse(m[0]);
+        if (parsed.summary) log(parsed.summary,'ok');
+        var NAMES = {fintual:'Fintual',larrain:'LarrainVial',btg:'BTG Pactual',santander:'Santander',nauta:'Nauta',racional:'Racional'};
+        var sl = document.getElementById('statusList');
+        if (sl && parsed.platforms) {
+          sl.innerHTML = Object.keys(NAMES).map(function(k){
+            var p = parsed.platforms[k]; var ok = p && p.found;
+            return '<div class="si"><div class="si-l"><div class="si-dot '+(ok?'ok':'nd')+'"></div><span class="si-name">'+NAMES[k]+'</span></div><span class="si-badge '+(ok?'ok':'nd')+'">'+(ok?'Sync':'Pendiente')+'</span></div>';
+          }).join('');
+        }
+        Object.keys(NAMES).forEach(function(k){
+          var p = parsed.platforms && parsed.platforms[k];
+          if (p && p.found && p.clp) log(NAMES[k]+' → $ '+(p.clp/1000000).toFixed(1)+'M','ok');
+          else log(NAMES[k]+' → sin email','warn');
+        });
+      }
+      log('Sincronización completa ✓','ok');
+      var sb = document.getElementById('syncBadge');
+      if (sb) sb.textContent = new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+    })
+    .catch(function(e){log('Error Gmail: '+e.message,'err');log('Verifica que Gmail esté en Claude.ai → Herramientas','warn');})
+    .finally(function(){
+      if (navIcon) { navIcon.className=''; navIcon.textContent='↻'; }
+    });
+  });
+
+// ═══════════════════════════════════════
+// PDF
+// ═══════════════════════════════════════
+function generatePDF() {
+  var btn = document.getElementById('btnGenPDF');
+  var status = document.getElementById('pdfStatus');
+  btn.disabled = true; btn.textContent = '⏳ Generando...';
+  if (status) { status.textContent = 'Claude está analizando tu portfolio...'; status.style.color = ''; }
+
+  var recipient = (document.getElementById('pdfRecipient') || {}).value || 'Familia Mac-Lean del Sante';
+  var period = {'mes':'Marzo 2026','trimestre':'Q1 2026','ytd':'Año a la fecha 2026','6m':'Oct 2025 – Mar 2026'}[(document.getElementById('pdfPeriod') || {}).value] || 'Marzo 2026';
+  var today = new Date().toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'});
+
+  var prompt = 'Eres asesor financiero de la '+recipient+'. Genera un informe ejecutivo de inversiones profesional en HTML para el período '+period+'.\n\nDATOS:\n- Total: $ 312.480.000 (UF 7.812)\n- Rentabilidad YTD: +11,4% (IPSA: +6,6%, Alpha: +4,8pp)\n- LarrainVial: $ 98M (31,4%) ▲+2,1%\n- BTG Pactual: $ 74,5M (23,8%) ▲+1,4%\n- Fintual: $ 55M (17,6%) ▲+6,8%\n- Santander: $ 42M (13,4%) ▼−0,3%\n- Nauta: $ 28M (9%) ▲+3,2%\n- Racional: $ 14,9M (4,8%) ▲+0,9%\n- Activos: Deuda 38%, Acciones 27%, Caja 19%, Alt 11%, Inmob 5%\n- Meta 2026: $ 400M → 78% (faltan $ 87,5M)\n\nGenera con secciones: Resumen ejecutivo, Detalle por plataforma, Análisis de activos, Recomendaciones. Usa etiquetas HTML simples: h2, h3, p, ul, li, table, tr, th, td. Sé concreto con los números.';
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:2000, messages:[{role:'user',content:prompt}]})
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    var text = data.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    pdfContent = text;
+    var preview = document.getElementById('pdfPreview');
+    if (preview) preview.innerHTML = '<div class="pdf-preview"><div style="text-align:center;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid var(--rule)"><div style="font-family:Cormorant Garamond,serif;font-size:1.2rem;font-weight:700;color:var(--text)">Informe de Inversiones</div><div style="font-size:.65rem;color:var(--muted);margin-top:3px">'+recipient+' · '+period+' · '+today+'</div></div><div style="font-size:.76rem;line-height:1.8;color:var(--text)">'+text+'</div></div>';
+    if (status) { status.textContent = '✓ Listo'; status.style.color = 'var(--green)'; }
+    var dnBtn = document.getElementById('btnDownPDF');
+    if (dnBtn) dnBtn.style.display = 'inline-flex';
+  })
+  .catch(function(e){
+    if (status) { status.textContent = 'Error: '+e.message; status.style.color = 'var(--red)'; }
+  })
+  .finally(function(){ btn.disabled=false; btn.innerHTML='🤖 Generar con IA'; });
+}
+
+function downloadPDF() {
+  if (!pdfContent) return;
+  var recipient = (document.getElementById('pdfRecipient')||{}).value || 'Familia Mac-Lean del Sante';
+  var today = new Date().toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'});
+  var html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Informe · '+recipient+'</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Georgia,serif;color:#0c1e3c;padding:48px;max-width:780px;margin:0 auto;font-size:13px;line-height:1.7}.hdr{border-bottom:3px solid #0c1e3c;padding-bottom:20px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:flex-end}.hdr h1{font-size:26px;font-weight:700}.hdr p{font-size:11px;color:#7a8fa8;margin-top:4px}.hdr-r{text-align:right;font-size:11px;color:#7a8fa8}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}.kpi{background:#f5f2ed;border-radius:6px;padding:12px}.kpi-l{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7a8fa8;margin-bottom:4px}.kpi-v{font-size:18px;font-weight:700}h2{font-size:16px;font-weight:700;margin:20px 0 8px;border-bottom:1px solid #e0dbd2;padding-bottom:5px}h3{font-size:13px;font-weight:700;margin:14px 0 5px}p{margin-bottom:8px;color:#3d5475}table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px}th{background:#0c1e3c;color:#fff;padding:7px 10px;text-align:left;font-size:9px;letter-spacing:.06em;text-transform:uppercase}td{padding:7px 10px;border-bottom:1px solid #e0dbd2}ul{padding-left:16px;color:#3d5475}li{margin-bottom:4px}.footer{margin-top:36px;padding-top:12px;border-top:1px solid #e0dbd2;font-size:10px;color:#7a8fa8;display:flex;justify-content:space-between}@media print{body{padding:24px}}</style></head><body><div class="hdr"><div><h1>Informe de Inversiones</h1><p>'+recipient+'</p></div><div class="hdr-r">'+today+'<br>Confidencial</div></div><div class="kpis"><div class="kpi"><div class="kpi-l">Total</div><div class="kpi-v">$ 312,5M</div></div><div class="kpi"><div class="kpi-l">YTD</div><div class="kpi-v" style="color:#0d7a56">+11,4%</div></div><div class="kpi"><div class="kpi-l">vs IPSA</div><div class="kpi-v" style="color:#0d7a56">+4,8pp</div></div><div class="kpi"><div class="kpi-l">Meta 2026</div><div class="kpi-v">78%</div></div></div>'+pdfContent+'<div class="footer"><span>'+recipient+' · '+today+'</span><span>Generado con IA</span></div></body></html>';
+  var w = window.open('','_blank','width=900,height=700');
+  if (w) { w.document.write(html); w.document.close(); setTimeout(function(){w.focus();w.print();},600); }
+}
+
+// ═══════════════════════════════════════
+// WEEKLY SUMMARY
+// ═══════════════════════════════════════
+var WEEKLY_KEY = 'mlds-weekly';
+
+function generateWeekly() {
+  var btn = document.getElementById('btnSemanal');
+  if (btn) { btn.disabled=true; btn.textContent='⏳ Generando...'; }
+  var content = document.getElementById('semanalContent');
+  if (content) content.innerHTML = '<div style="text-align:center;padding:30px;opacity:.4;font-size:.75rem">Claude está analizando la semana...</div>';
+
+  var today = new Date();
+  var weekStr = today.toLocaleDateString('es-CL',{day:'numeric',month:'short'});
+  var mondayStr = new Date(today.getTime()-6*86400000).toLocaleDateString('es-CL',{day:'numeric',month:'short'});
+
+  var prompt = 'Eres el asesor financiero de la Familia Mac-Lean del Sante. Genera un resumen semanal de su portfolio.\n\nPORTFOLIO:\n- Total: $ 312.480.000 (UF 7.812)\n- YTD: +11,4% (IPSA: +6,6%)\n- Mejor: Fintual (+6,8%), Peor: Santander (−0,3%)\n- Meta $ 400M → 78%\n- Semana: '+mondayStr+' al '+weekStr+'\n\nGenera en HTML con estas secciones:\n<h3>📊 Situación del portfolio</h3>\n<h3>🌍 Contexto de mercado</h3>\n<h3>✅ Puntos positivos</h3><ul>...\n<h3>⚠️ Puntos de atención</h3><ul>...\n<h3>📌 Recomendación próxima semana</h3>\n\nSé concreto, usa los números reales. Tono profesional pero cercano.';
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514', max_tokens:1200,
+      tools:[{type:'web_search_20250305',name:'web_search'}],
+      messages:[{role:'user',content:prompt}]
+    })
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    var text = data.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    if (content) content.innerHTML = '<div style="font-size:.78rem;line-height:1.85;color:var(--text)">'+text+'</div>';
+    var dateEl = document.getElementById('semanalDate');
+    if (dateEl) dateEl.textContent = 'Semana del '+mondayStr+' al '+weekStr;
+    // Save history
+    try {
+      var hist = JSON.parse(localStorage.getItem(WEEKLY_KEY+'_hist') || '[]');
+      hist.unshift({date:today.toLocaleDateString('es-CL'),week:mondayStr+'–'+weekStr,content:text});
+      if (hist.length > 6) hist = hist.slice(0,6);
+      localStorage.setItem(WEEKLY_KEY+'_hist', JSON.stringify(hist));
+      localStorage.setItem(WEEKLY_KEY+'_last', today.toDateString());
+      renderWeeklyHistory();
+    } catch(e){}
+  })
+  .catch(function(e){
+    if (content) content.innerHTML = '<div style="color:var(--red);font-size:.75rem;padding:16px">Error: '+e.message+'</div>';
+  })
+  .finally(function(){ if(btn){btn.disabled=false;btn.innerHTML='✦ Generar';} });
+}
+
+function renderWeeklyHistory() {
+  var el = document.getElementById('semanalHistory');
+  if (!el) return;
+  try {
+    var hist = JSON.parse(localStorage.getItem(WEEKLY_KEY+'_hist') || '[]');
+    if (!hist.length) { el.innerHTML = '<div style="font-size:.72rem;color:var(--muted);text-align:center;padding:16px;opacity:.5">Sin historial aún</div>'; return; }
+    el.innerHTML = hist.map(function(s,i){
+      return '<div style="padding:10px 0;border-bottom:1px solid var(--rule)'+(i===hist.length-1?';border-bottom:none':'')+'">' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:5px">' +
+        '<div style="font-size:.7rem;font-weight:700;color:var(--text)">Semana '+s.week+'</div>' +
+        '<div style="font-size:.6rem;color:var(--muted)">'+s.date+'</div></div>' +
+        '<div style="font-size:.68rem;color:var(--muted);line-height:1.6;max-height:52px;overflow:hidden">'+s.content.replace(/<[^>]*>/g,' ').substring(0,180)+'...</div></div>';
+    }).join('');
+  } catch(e){ el.innerHTML = ''; }
+}
+
+function checkAutoWeekly() {
+  try {
+    var hist = JSON.parse(localStorage.getItem(WEEKLY_KEY+'_hist') || '[]');
+    if (hist.length) {
+      var el = document.getElementById('semanalContent');
+      if (el) el.innerHTML = '<div style="font-size:.78rem;line-height:1.85;color:var(--text)">'+hist[0].content+'</div>';
+    }
+    renderWeeklyHistory();
+    var lastDate = localStorage.getItem(WEEKLY_KEY+'_last');
+    var today = new Date();
+    if (today.getDay() === 1 && lastDate !== today.toDateString()) {
+      setTimeout(generateWeekly, 1500);
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════
+// EVENT DELEGATION (Safari iOS compatible)
+// ═══════════════════════════════════════
+document.addEventListener('click', function(e) {
+  var el = e.target;
+  // Walk up to find actionable element
+  for (var i = 0; i < 6; i++) {
+    if (!el || el === document.body) break;
+    
+    if (el.getAttribute('data-goto')) {
+      goTo(el.getAttribute('data-goto'));
+      return;
+    }
+    if (el.getAttribute('data-action') === 'dark') {
+      toggleDark();
+      return;
+    }
+    if (el.getAttribute('data-action') === 'sync') {
+      syncGmail();
+      return;
+    }
+    if (el.getAttribute('data-currency')) {
+      setCurrency(el.getAttribute('data-currency'), el);
+      return;
+    }
+    if (el.getAttribute('data-currency-inner')) {
+      setCurrencyInner(el.getAttribute('data-currency-inner'), el);
+      return;
+    }
+    if (el.getAttribute('data-action') === 'savemeta') { saveMeta(); return; }
+    if (el.getAttribute('data-action') === 'saverates') { saveRates(); return; }
+    if (el.getAttribute('data-action') === 'genpdf') { generatePDF(); return; }
+    if (el.getAttribute('data-action') === 'downpdf') { downloadPDF(); return; }
+    if (el.getAttribute('data-action') === 'weekly') { generateWeekly(); return; }
+    if (el.getAttribute('data-action') === 'theme-light') { setTheme('light'); return; }
+    if (el.getAttribute('data-action') === 'theme-dark') { setTheme('dark'); return; }
+    var noteKey = el.getAttribute('data-note-save');
+    if (noteKey) { saveNote(noteKey); return; }
+    
+    el = el.parentElement;
+  }
+});
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.getElementById('jstest').addEventListener('click', function() {
+  alert('✅ JavaScript funciona OK');
+  document.getElementById('jstest').style.display = 'none';
+});
+loadSettings();
+updateMeta();
+updateCurrencyDisplay();
+checkAutoWeekly();
+document.getElementById('coverDate').textContent = new Date().toLocaleDateString('es-CL',{day:'numeric',month:'short',year:'numeric'});
+</script>
+</body>
+</html>
